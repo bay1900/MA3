@@ -1,40 +1,82 @@
-data = [
-    {'name': 'bb', 'key': '331406f6ef8a1e3c954e87548c236dd7dde8d8a88e552b2428cf116cecc10ca7'},
-    {'name': 'bb', 'key': 'd8f06053f57d018091d19c3e6008227861ddc9ef1dc2d6a5903862a31cbbc770'},
-    {'name': 'bb', 'key': 'beab7e4a19378a8d19c505233d3983a799552b08578d30d0028b52ba5ab942fa'},
-    {'name': 'bb', 'key': 'eb33d38b9d604394bb0509a489353d712f4248bfd8147bf6384622e96127b96d'}
-]
-api_key = "eb33d38b9d604394bb0509a489353d712f4248bfd8147bf6384622e96127b96"
+from mistralai import Mistral
+import requests
+import numpy as np
+import faiss
+from pathlib import Path
+from getpass import getpass
+from dotenv import load_dotenv
+from helper import get_env
 
-def check_exist_api_key(data, api_key):
-    """
-    Checks if the given API key exists in the provided data.
+# GET API KEY
+MISTRAL_API_KEY =  get_env.retreive_value( "MISTRAL_API_KE")
 
-    Args:
-        data (list): A list of dictionaries, where each dictionary contains 'key'.
-        api_key (str): The API key to search for.
 
-    Returns:
-        bool: True if the API key exists, False otherwise.
-    """
-    if not isinstance(data, list):
-        raise TypeError("Data must be a list.")
+#CALL AI SERVICE
+client = Mistral( api_key = MISTRAL_API_KEY )
 
-    if not isinstance(api_key, str):
-        raise TypeError("API key must be a string.")
+# BASE KNOWLEDGE
+response = requests.get('https://raw.githubusercontent.com/run-llama/llama_index/main/docs/docs/examples/data/paul_graham/paul_graham_essay.txt')
+text = response.text
 
-    for item in data:
-        if not isinstance(item, dict):
-            raise TypeError("Items in data must be dictionaries.")
+f = open('essay.txt', 'w')
+f.write(text)
+f.close()
 
-        if "key" not in item:
-            raise ValueError("Each item in data must contain a 'key'.")
+# SPLIT TEXT INTO CHUNK
+chunk_size = 2048
+chunks = [text[i:i + chunk_size] for i in range(0, len(text), chunk_size)]
+chuck_size = len(chunks)
 
-        if item["key"] == api_key:
-            return True
 
-    return False
+# EMBEDED TO VECTOR
+def get_text_embedding(input):
+    embeddings_batch_response = client.embeddings.create(
+          model="mistral-embed",
+          inputs=input
+      )
+    return embeddings_batch_response.data[0].embedding
 
-test = check_exist_api_key(data, api_key )
-print ( "test : ",  test )
+text_embeddings = np.array([get_text_embedding(chunk) for chunk in chunks])
 
+# LOAD EMBEDED DATA INTO VECTOR DATABASE
+d = text_embeddings.shape[1]
+index = faiss.IndexFlatL2(d)
+index.add(text_embeddings)
+
+
+question = "What were the two main things the author worked on before college?"  # QUESTION 
+question_embeddings = np.array([get_text_embedding(question)])                   # EMBEDED THE QUESTION
+
+
+D, I = index.search(question_embeddings, k=2) # distance, index
+retrieved_chunk = [chunks[i] for i in I.tolist()[0]]
+
+prompt = f"""
+Context information is below.
+---------------------
+{retrieved_chunk}
+---------------------
+Given the context information and not prior knowledge, answer the query.
+Query: {question}
+Answer:
+"""
+
+
+
+def run_mistral(user_message, model="mistral-large-latest"):
+    print ( "try to run mistral")
+    messages = [
+        {
+            "role": "user", 
+            "content": user_message
+        }
+    ]
+    chat_response = client.chat.complete(
+        model=model,
+        messages=messages
+    )
+    return (chat_response.choices[0].message.content)
+
+test = run_mistral(prompt)
+
+print ( test )

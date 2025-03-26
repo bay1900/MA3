@@ -7,6 +7,14 @@ from fastapi import FastAPI, Depends, HTTPException, Header
 from typing import Optional
 from pathlib import Path
 from helper import api_helper, json_file_helper
+from model import chat_model
+
+
+# LOGGER
+import logging_config
+import logging
+
+logger = logging.getLogger(__name__)
 
  
 app = FastAPI(
@@ -62,6 +70,8 @@ def api_key_handler (payload) -> bool:
     return True
 
 def get_api_key(api_key: Optional[str] = Header(None)) -> str:
+    
+    print ( " get api " )
     """Dependency to validate the API key."""
     if api_key is None:
         raise HTTPException(status_code=400, detail="API Key missing")
@@ -94,12 +104,15 @@ async def generate_key_endpoint(payload: dict):
                 "st_id": st_id
                 
                }
+    
+    logger.info("api_key: %s, name: %s, st_id: %s", gen_key, name, st_id)
     return response
 
 @app.get("/data")  #endpoint protected by API key
 async def get_data(api_key: str = Depends(get_api_key)):
     
-    name = api_helper.get_name_by_api_key (API_KEYS, api_key )
+    
+    name = api_helper.get_name_by_api_key ( api_key )
     
     payload = { 
                "name": name,
@@ -109,22 +122,17 @@ async def get_data(api_key: str = Depends(get_api_key)):
 
     return payload
 
-
 # Example payload model
 class chat_payload(BaseModel):
     chat: str
     
-    
 @app.post("/chat")  #endpoint protected by API key
 async def get_chat( 
-                    payload: chat_payload,
+                    payload: chat_model.ChatInput,
                     api_key: str = Depends(get_api_key)
-                    
                   ):
-     print( "chat endpoint ... ",  api_key )
-     print( "payload ... ",  payload.chat )
-
-
-     return payload
+    
+    ## LLM RAG FUNCTION HEERE
+    return payload
 
 

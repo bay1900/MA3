@@ -6,6 +6,13 @@ from pathlib import Path
 from dotenv import load_dotenv
 from fastapi import HTTPException
 
+# LOGGER
+
+import logging_config
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 # ENV
 load_dotenv()
@@ -15,13 +22,15 @@ USER_API_KEY_PATH = os.getenv('USER_API_KEY_PATH')
 def create_json ( payload ) -> bool: 
     try:
         with open(USER_API_KEY_PATH, 'w') as file:
-                json.dump(payload, file, indent=4)
-        # return {"message": "API key stored successfully"}
+             json.dump(payload, file, indent=4)
+       
     except Exception as e:
+        
+        logger.warning("A warning")
         raise HTTPException(status_code=500, detail=f"Error storing API key: {e}")
     
 def write_json(payload):
-    print ( 'write_json' )
+   
     USER_API_KEY_PATH = Path( os.getenv('USER_API_KEY_PATH') ) 
 
     try:
@@ -42,8 +51,11 @@ def write_json(payload):
             json.dump(existing_data, file, indent=4)
 
         return {"message": "Data appended successfully"}
+        
+        # raise ValueError("This is a test exception")
 
     except Exception as e:
+        logger.warning(f" {e} ")
         raise HTTPException(status_code=500, detail=f"Error appending data: {e}")
 
 
@@ -53,5 +65,6 @@ def read_json():
              data = json.load(file)
              return data 
     except Exception as e:
+        logger.error(f" {e} ")
         raise HTTPException(status_code=500, detail=f"Error reading API key: {e}")
  
