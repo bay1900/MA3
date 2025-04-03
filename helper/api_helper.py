@@ -3,7 +3,7 @@ import json
 
 from pathlib import Path
 from dotenv import load_dotenv
-from helper import json_file_helper
+from helper import file_helper
 
 
 # Get the path to the parent directory (where .env is located)
@@ -16,27 +16,15 @@ USER_API_KEY_PATH = Path(os.getenv( 'USER_API_KEY_PATH'))
     
 def get_name_by_api_key ( INPUT_API_KEY ): 
     
-    """ 
-       get current api key from json data
-    """
-    API_DATA_FROM_JSON = json_file_helper.read_json()
-
+    API_DATA_FROM_JSON = file_helper.read_json( USER_API_KEY_PATH )
     
     get_name = lambda k: next((item.get("name") for item in API_DATA_FROM_JSON if item.get("key") == k),  '-unknown-' )
     name = get_name ( INPUT_API_KEY )
     return name
 
 def check_exist_api_key( api_key):
-    
-    print( "check_exist_api_key" )
-     
-    """ 
-       get current api key from json data
-    """
-    API_DATA_FROM_JSON = json_file_helper.read_json()
-    
-    
-    print ( "API_DATA_FROM_JSON : ", API_DATA_FROM_JSON  )
+   
+    API_DATA_FROM_JSON = file_helper.read_json( USER_API_KEY_PATH )
     
     if not isinstance(API_DATA_FROM_JSON, list):
         raise TypeError("Data must be a list.")

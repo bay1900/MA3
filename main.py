@@ -6,16 +6,17 @@ from pydantic import BaseModel
 from fastapi import FastAPI, Depends, HTTPException, Header
 from typing import Optional
 from pathlib import Path
-from helper import api_helper, json_file_helper
-from model import chat_model
-
+from helper import api_helper, file_helper
+from model import param
+# from retriever import RETRIEVER
+from agent import agent_executor  
 
 # LOGGER
-import logging_config
+import logging_config 
 import logging
 
 logger = logging.getLogger(__name__)
-
+ 
  
 app = FastAPI(
     title="MA3 API",
@@ -49,7 +50,7 @@ def generate_api_key( name, st_id):
     """Generates a secure API key."""
     api_key = secrets.token_hex(32)  # Generates a 64-character hex string
  
-    payload = { 
+    payload = {  
                 "name": name,
                 "stid": st_id,
                 "key" : api_key
@@ -63,9 +64,9 @@ def api_key_handler (payload) -> bool:
     
     # Check if the file exists
     if os.path.exists(USER_API_KEY_PATH):
-        json_file_helper.write_json ( payload )
+        file_helper.write_json ( payload )
     else:
-        json_file_helper.create_json ( payload )
+        file_helper.create_json ( payload )
         
     return True
 
@@ -111,7 +112,6 @@ async def generate_key_endpoint(payload: dict):
 @app.get("/data")  #endpoint protected by API key
 async def get_data(api_key: str = Depends(get_api_key)):
     
-    
     name = api_helper.get_name_by_api_key ( api_key )
     
     payload = { 
@@ -119,20 +119,24 @@ async def get_data(api_key: str = Depends(get_api_key)):
                "msg" : "Suceessfully access data"
             #    "api" : api_key
               }
+    
+    property_path = "./utils/property.json"
+    
+    
+    result = file_helper.read_json( property_path )
+    
+    print ( " result : ", result.get("template_str") )
+    
+    print ( "file_helper : ", file_helper )
 
     return payload
 
-# Example payload model
-class chat_payload(BaseModel):
-    chat: str
-    
 @app.post("/chat")  #endpoint protected by API key
 async def get_chat( 
-                    payload: chat_model.ChatInput,
-                    api_key: str = Depends(get_api_key)
+                    payload: param.ChatInput,
+                    # api_key: str = Depends(get_api_key)
                   ):
     
-    ## LLM RAG FUNCTION HEERE
-    return payload
-
-
+    result = agent_executor(payload.patient_question) ## Required to implement retry 
+    return result
+ 

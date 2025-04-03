@@ -2,14 +2,10 @@ from mistralai import Mistral
 import requests
 import numpy as np
 import faiss
-from pathlib import Path
-from getpass import getpass
-from dotenv import load_dotenv
 from helper import get_env
 
 # GET API KEY
 MISTRAL_API_KEY =  get_env.retreive_value( "MISTRAL_API_KE")
-
 
 #CALL AI SERVICE
 client = Mistral( api_key = MISTRAL_API_KEY )

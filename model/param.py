@@ -6,3 +6,4 @@ class ChatInput ( BaseModel ):
     gene_fault: str
     category: str
     patient_question: str
+    

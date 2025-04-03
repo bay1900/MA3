@@ -1,0 +1,25 @@
+Topic: Welcome to your ActionPlan
+
+Gene: BRCA1
+
+Min Age: 20
+Max Age: 29
+
+Heading: Your cancer risk
+If you were assigned female at birth:
+-   At your current age, your risk of developing breast and ovarian cancer is low .
+-   Unless you have a family member with a young-age breast or ovarian cancer diagnosis, you are not recommended to begin cancer risk management until age 30 years.
+-   This risk will change over time, and you can use this website to see how your risk management recommendations will change in the future.If you were assigned male at birth:
+- Your risk of developing breast cancer in your lifetime is increased, but remains low.
+- For your cancer risks and management guidelines, please see the section "Less common cancers".
+
+Min Age: 30
+Max Age: 39
+
+Heading: Your cancer risk
+If you were assigned female at birth:
+- At your current age, your risk of developing breast cancer is low, but higher than the general population.
+- Before the age of 35, your risk of developing ovarian cancer is low.
+- You can use this website to read the recommendations to manage your breast and ovarian cancer risks now, and how these recommendations will change in the future.If you were assigned male at birth:
+- Your risk of developing breast cancer in your lifetime is increased, but remains low.
+- For your cancer risks and management guidelines, please see the section "Less common cancers".

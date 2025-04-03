@@ -59,12 +59,22 @@ def write_json(payload):
         raise HTTPException(status_code=500, detail=f"Error appending data: {e}")
 
 
-def read_json(): 
+def read_json( path: str): 
     try:
-        with open(USER_API_KEY_PATH, 'r') as file:
+        with open(path, 'r') as file:
              data = json.load(file)
              return data 
     except Exception as e:
         logger.error(f" {e} ")
         raise HTTPException(status_code=500, detail=f"Error reading API key: {e}")
  
+ 
+def read_txt(PATH):
+    try:
+        with open(PATH, "r", encoding="utf-8") as file:
+           
+            data = file.read()
+            return data 
+    except Exception as e:
+        logger.error(f" {e} ")
+        raise HTTPException(status_code=500, detail=f"Error reading API key: {e}")
