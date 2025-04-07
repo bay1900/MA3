@@ -1,10 +1,11 @@
 # Environment variables
-*.env
+# *.env
 
 # Specific files
-actionplan - whole.txt
+# actionplan - whole.txt
 essay.txt
 test.txt
+note.txt
 demo.py
 
 # Logs

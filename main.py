@@ -137,6 +137,6 @@ async def get_chat(
                     # api_key: str = Depends(get_api_key)
                   ):
     
-    result = agent_executor(payload.patient_question) ## Required to implement retry 
+    result = agent_executor(payload) ## Required to implement retry 
     return result
  
